@@ -6,7 +6,6 @@ using VaccinationCard.Application.Common.Behaviors;
 
 namespace VaccinationCard.Application;
 
-// Registro dos serviços da camada de Application (MediatR, validadores e pipeline de validação).
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
@@ -18,7 +17,6 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(assembly);
 
-        // O pipeline de validação roda os validadores do FluentValidation antes de cada handler.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         return services;
