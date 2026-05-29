@@ -3,6 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{08779370-671F-4221-AAC0-55BA0DC413E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.API", "src\VaccinationCard.API\VaccinationCard.API.csproj", "{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.Application", "src\VaccinationCard.Application\VaccinationCard.Application.csproj", "{FD4683E6-1795-426B-99FE-8703873DC5AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.Domain", "src\VaccinationCard.Domain\VaccinationCard.Domain.csproj", "{5FA176A5-BF45-4D27-B0E7-32377DA55080}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.Infrastructure", "src\VaccinationCard.Infrastructure\VaccinationCard.Infrastructure.csproj", "{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -10,5 +20,29 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD4683E6-1795-426B-99FE-8703873DC5AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD4683E6-1795-426B-99FE-8703873DC5AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD4683E6-1795-426B-99FE-8703873DC5AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD4683E6-1795-426B-99FE-8703873DC5AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FA176A5-BF45-4D27-B0E7-32377DA55080}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FA176A5-BF45-4D27-B0E7-32377DA55080}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FA176A5-BF45-4D27-B0E7-32377DA55080}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FA176A5-BF45-4D27-B0E7-32377DA55080}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C} = {08779370-671F-4221-AAC0-55BA0DC413E9}
+		{FD4683E6-1795-426B-99FE-8703873DC5AC} = {08779370-671F-4221-AAC0-55BA0DC413E9}
+		{5FA176A5-BF45-4D27-B0E7-32377DA55080} = {08779370-671F-4221-AAC0-55BA0DC413E9}
+		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A} = {08779370-671F-4221-AAC0-55BA0DC413E9}
 	EndGlobalSection
 EndGlobal
