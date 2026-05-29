@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.16" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VaccinationCard.Application\VaccinationCard.Application.csproj" />
   </ItemGroup>
 
