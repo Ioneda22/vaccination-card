@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VaccinationCard.API.Contracts;
 using VaccinationCard.Application.Features.People.Commands.CreatePerson;
 using VaccinationCard.Application.Features.People.Commands.DeletePerson;
+using VaccinationCard.Application.Features.People.Queries.GetPeople;
 using VaccinationCard.Application.Features.People.Queries.GetVaccinationCard;
 
 namespace VaccinationCard.API.Controllers;
@@ -25,6 +26,14 @@ public class PeopleController(ISender sender) : ControllerBase
             cancellationToken);
 
         return CreatedAtAction(nameof(GetVaccinationCard), new { personId }, new { id = personId });
+    }
+
+    // Lista todas as pessoas cadastradas
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var people = await _sender.Send(new GetPeopleQuery(), cancellationToken);
+        return Ok(people);
     }
 
     /// Consulta o cartão de vacinação completo de uma pessoa (listas de registro de vacinações)

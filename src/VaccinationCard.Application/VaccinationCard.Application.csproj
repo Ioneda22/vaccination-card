@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <Folder Include="Features\VaccinationRecords\Queries\" />
-    <Folder Include="Features\Vaccines\Queries\" />
   </ItemGroup>
 
   <PropertyGroup>
