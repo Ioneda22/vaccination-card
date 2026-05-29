@@ -4,7 +4,8 @@ using VaccinationCard.Domain.Entities;
 
 namespace VaccinationCard.Infrastructure.Persistence.Repositories;
 
-public class VaccineRepository(ApplicationDbContext context) : IVaccineRepository
+public class VaccineRepository(ApplicationDbContext context)
+    : IVaccineRepository
 {
     private readonly ApplicationDbContext _context = context;
 
