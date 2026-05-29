@@ -1,143 +1,154 @@
-# Cartão de Vacinação — API REST
+# Cartão de Vacinação
 
-API para gerenciar cartões de vacinação: cadastro de vacinas e pessoas, registro de vacinações (com validação de dose), consulta do cartão e exclusão de registros/pessoas.
+Sistema completo (API + frontend) para gerenciar cartões de vacinação: cadastro de vacinas e pessoas, registro de vacinações (com validação de dose), consulta do cartão e exclusão de registros/pessoas.
 
-## Tecnologias
-
-- **.NET 9** / ASP.NET Core Web API
-- **Clean Architecture** (Domain, Application, Infrastructure, API)
-- **CQRS** com **MediatR**
-- **FluentValidation** (validação via pipeline behavior)
-- **Entity Framework Core** (banco **InMemory** — não exige instalação de SGBD)
-- **Autenticação JWT** (Bearer)
-- **Swagger / OpenAPI**
-
-## Estrutura do projeto
-
-```
-src/
-├── VaccinationCard.Domain          # Entidades e constantes (regras de domínio)
-├── VaccinationCard.Application      # Commands/Queries, Handlers, Validadores, Interfaces
-├── VaccinationCard.Infrastructure  # EF Core, Repositórios, JWT, DI da infraestrutura
-└── VaccinationCard.API             # Controllers, Program.cs, middleware de exceções
-```
+- **Backend:** ASP.NET Core 9 (Clean Architecture, CQRS, JWT)
+- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS
 
 ---
 
-## 1. Setup e execução
+## Sumário
 
-Pré-requisito: **.NET SDK 9**.
+1. [Visão geral / arquitetura](#1-visão-geral--arquitetura)
+2. [Pré-requisitos](#2-pré-requisitos)
+3. [Como rodar (passo a passo)](#3-como-rodar-passo-a-passo)
+4. [Tutorial de uso da aplicação](#4-tutorial-de-uso-da-aplicação)
+5. [Referência da API](#5-referência-da-api)
+6. [Decisões arquiteturais](#6-decisões-arquiteturais)
+7. [Próximos passos](#7-próximos-passos)
+
+---
+
+## 1. Visão geral / arquitetura
+
+```
+VaccineCard/
+├── src/                              # Backend (.NET 9)
+│   ├── VaccinationCard.Domain          # Entidades e constantes (regras de domínio)
+│   ├── VaccinationCard.Application      # Commands/Queries, Handlers, Validadores, Interfaces
+│   ├── VaccinationCard.Infrastructure  # EF Core, Repositórios, JWT, DI da infraestrutura
+│   └── VaccinationCard.API             # Controllers, Program.cs, middleware de exceções
+├── frontend/                         # Frontend (React + Vite + TS)
+│   └── src/
+│       ├── api/                        # Axios (instância + interceptors) e serviços tipados
+│       ├── components/                 # Layout, rota protegida, modal, spinner
+│       ├── context/                    # AuthContext (token/usuário no localStorage)
+│       ├── pages/                      # Login, Pessoas, Vacinas, Cartão de vacinação
+│       └── types.ts                    # Tipagens dos contratos da API
+└── README.md
+```
+
+**Stack backend:** .NET 9, Clean Architecture, CQRS com MediatR, FluentValidation, EF Core (InMemory), JWT Bearer, Swagger.
+**Stack frontend:** React 18, TypeScript, Vite, Tailwind CSS, React Router v6, React Hook Form, Axios.
+
+---
+
+## 2. Pré-requisitos
+
+- **.NET SDK 9** (backend)
+- **Node.js 18+** e **npm** (frontend)
+
+---
+
+## 3. Como rodar (passo a passo)
+
+A aplicação tem duas partes. Abra **dois terminais** (um para o backend, outro para o frontend).
+
+### 3.1. Backend (API)
 
 ```bash
-# Na raiz do projeto
+# Na raiz do projeto (VaccineCard/)
 dotnet restore
-dotnet build
-
-# Rodar a API (perfil HTTP)
 dotnet run --project src/VaccinationCard.API --launch-profile http
 ```
 
-A API sobe em **http://localhost:5087** (e https://localhost:7061 no perfil `https`).
+- API disponível em **http://localhost:5087**
+- Swagger (documentação interativa): **http://localhost:5087/swagger**
 
-> O banco é **InMemory**: os dados são reiniciados a cada execução. Ideal para testes.
+> O banco é **InMemory**: os dados são reiniciados a cada execução do backend.
 
-### Swagger
+### 3.2. Frontend (React)
 
-Com a aplicação rodando, abra:
-
+```bash
+# Em outro terminal, a partir da raiz
+cd frontend
+npm install          # apenas na primeira vez
+npm run dev
 ```
-http://localhost:5087/swagger
-```
 
-No Swagger há o botão **Authorize** — cole o token JWT (sem a palavra `Bearer`) para autorizar as chamadas pela UI.
+- App disponível em **http://localhost:5173**
+- A URL da API é configurável em `frontend/.env` (`VITE_API_BASE_URL`). O padrão já aponta para `http://localhost:5087/api`.
+
+### 3.3. Acessar
+
+Abra **http://localhost:5173** e faça login com as credenciais de demonstração:
+
+| Utilizador | Senha |
+|------------|-------|
+| `admin`    | `admin` |
+
+> **CORS:** o backend já libera as origens do Vite (`http://localhost:5173` e `http://localhost:4173`).
 
 ---
 
-## 2. Autenticação
+## 4. Tutorial de uso da aplicação
 
-Todos os endpoints (exceto o login) exigem um token **JWT Bearer**.
+Depois de logar, você cai no **Dashboard (Pessoas)**. O fluxo recomendado:
 
-Credenciais de demonstração: **`admin` / `admin`**.
+1. **Cadastre uma vacina** — vá em **Vacinas → "+ Nova vacina"** (ex.: `COVID-19 (Pfizer)`). É necessário ter ao menos uma vacina para registrar vacinações.
+2. **Cadastre uma pessoa** — no **Dashboard → "+ Nova pessoa"**, informe nome e número de identificação (único).
+3. **Abra o cartão** — clique em **"Ver cartão"** na linha da pessoa.
+4. **Registre uma vacinação** — no formulário lateral, selecione a vacina, a dose e a data de aplicação, e clique em **Registrar**. A tabela atualiza na hora.
+5. **Exclua** — registros de vacinação têm botão **Excluir**; pessoas têm botão **Remover** (apaga também o cartão inteiro, em cascata).
 
-### `POST /api/auth/login`
-
-Request:
-```json
-{ "userName": "admin", "password": "admin" }
-```
-
-Response `200 OK`:
-```json
-{ "accessToken": "eyJhbGciOiJIUzI1NiI...", "tokenType": "Bearer" }
-```
-
-Use o token nas demais chamadas no header:
-```
-Authorization: Bearer <accessToken>
-```
+Doses disponíveis: **Dose única, 1ª dose, 2ª dose, 3ª dose, Reforço** (validadas pelo backend).
 
 ---
 
-## 3. Endpoints
+## 5. Referência da API
+
+URL base: `http://localhost:5087/api`. Todos os endpoints (exceto o login) exigem **JWT Bearer**.
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| `POST` | `/api/auth/login` | Autentica e retorna o token JWT |
-| `POST` | `/api/vaccines` | Cadastra uma vacina |
-| `POST` | `/api/people` | Cadastra uma pessoa |
-| `DELETE` | `/api/people/{personId}` | Remove a pessoa e todo o seu cartão (cascata) |
-| `GET` | `/api/people/{personId}/vaccination-card` | Consulta o cartão de vacinação |
-| `POST` | `/api/people/{personId}/vaccination-records` | Registra uma vacinação |
-| `DELETE` | `/api/people/{personId}/vaccination-records/{recordId}` | Exclui um registro de vacinação |
+| `POST` | `/auth/login` | Autentica e retorna o token JWT |
+| `GET` | `/vaccines` | Lista as vacinas |
+| `POST` | `/vaccines` | Cadastra uma vacina |
+| `GET` | `/people` | Lista as pessoas |
+| `POST` | `/people` | Cadastra uma pessoa |
+| `DELETE` | `/people/{personId}` | Remove a pessoa e todo o seu cartão (cascata) |
+| `GET` | `/people/{personId}/vaccination-card` | Consulta o cartão de vacinação |
+| `POST` | `/people/{personId}/vaccination-records` | Registra uma vacinação |
+| `DELETE` | `/people/{personId}/vaccination-records/{recordId}` | Exclui um registro de vacinação |
 
-### Doses aceitas (validadas pelo sistema)
+### Autenticação
 
-`Single`, `First`, `Second`, `Third`, `Booster` (case-insensitive).
+`POST /api/auth/login` — body `{ "userName": "admin", "password": "admin" }` → `{ "accessToken": "...", "tokenType": "Bearer" }`.
+Use o token nas demais chamadas: header `Authorization: Bearer <accessToken>`.
 
----
+### Exemplos de body
 
-## 4. Tutorial — fluxo completo (passo a passo)
-
-Os exemplos usam `curl`. Substitua os IDs pelos retornados em cada passo.
-
-### Passo 1 — Login
-```bash
-curl http://localhost:5087/api/auth/login \
-  -X POST -H "Content-Type: application/json" \
-  -d '{"userName":"admin","password":"admin"}'
+**Criar vacina** — `POST /api/vaccines`
+```json
+{ "name": "COVID-19 (Pfizer)" }
 ```
-Guarde o `accessToken`. Nos próximos passos usaremos `-H "Authorization: Bearer <TOKEN>"`.
 
-### Passo 2 — Cadastrar uma vacina
-```bash
-curl http://localhost:5087/api/vaccines \
-  -X POST -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
-  -d '{"name":"COVID-19 (Pfizer)"}'
+**Criar pessoa** — `POST /api/people`
+```json
+{ "name": "Maria Silva", "identificationNumber": "12345678900" }
 ```
-Resposta `201 Created`: `{ "id": "<vaccineId>" }`
 
-### Passo 3 — Cadastrar uma pessoa
-```bash
-curl http://localhost:5087/api/people \
-  -X POST -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
-  -d '{"name":"Maria Silva","identificationNumber":"12345678900"}'
+**Registrar vacinação** — `POST /api/people/{personId}/vaccination-records`
+```json
+{
+  "vaccineId": "d3f1f7a0-0000-0000-0000-000000000000",
+  "dose": "First",
+  "applicationDate": "2024-03-10T00:00:00Z"
+}
 ```
-Resposta `201 Created`: `{ "id": "<personId>" }`
+Doses aceitas (case-insensitive): `Single`, `First`, `Second`, `Third`, `Booster`.
 
-### Passo 4 — Registrar uma vacinação
-```bash
-curl http://localhost:5087/api/people/<personId>/vaccination-records \
-  -X POST -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
-  -d '{"vaccineId":"<vaccineId>","dose":"First","applicationDate":"2024-03-10T00:00:00Z"}'
-```
-Resposta `201 Created`: `{ "id": "<recordId>" }`
-
-### Passo 5 — Consultar o cartão de vacinação
-```bash
-curl http://localhost:5087/api/people/<personId>/vaccination-card \
-  -H "Authorization: Bearer <TOKEN>"
-```
-Resposta `200 OK`:
+**Resposta do cartão** — `GET /api/people/{personId}/vaccination-card`
 ```json
 {
   "personId": "...",
@@ -155,111 +166,35 @@ Resposta `200 OK`:
 }
 ```
 
-### Passo 6 — Excluir um registro de vacinação
-```bash
-curl http://localhost:5087/api/people/<personId>/vaccination-records/<recordId> \
-  -X DELETE -H "Authorization: Bearer <TOKEN>"
-```
-Resposta `204 No Content`.
+### Tratamento de erros
 
-### Passo 7 — Remover a pessoa (apaga o cartão em cascata)
-```bash
-curl http://localhost:5087/api/people/<personId> \
-  -X DELETE -H "Authorization: Bearer <TOKEN>"
-```
-Resposta `204 No Content`.
+A API responde no formato **ProblemDetails** (RFC 7807) com o status apropriado: `400` (validação), `401` (sem token / credenciais inválidas), `404` (recurso inexistente), `409` (identificação duplicada). O frontend exibe essas mensagens diretamente na interface.
 
 ---
 
-## 5. Exemplos de body das requisições
+## 6. Decisões arquiteturais
 
-**Criar vacina** — `POST /api/vaccines`
-```json
-{ "name": "Tétano" }
-```
+**Backend**
+- **Clean Architecture + CQRS:** separa regras de negócio (Application/Domain) da infraestrutura e da API. Cada caso de uso é um Command/Query com seu Handler.
+- **Contratos da API separados dos Commands:** os `Request` records em `API/Contracts` isolam a interface HTTP da lógica interna.
+- **Validação via pipeline (`ValidationBehavior`):** todo Command passa pelos validadores do FluentValidation antes do Handler.
+- **Tratamento global de exceções:** `GlobalExceptionHandler` traduz exceções de domínio/validação para respostas HTTP padronizadas (ProblemDetails).
+- **`Id` (GUID) separado do número de identificação:** a chave primária é um GUID técnico, sem acoplar a PK a um dado de negócio.
+- **Cascata vs. restrição:** excluir uma pessoa apaga seus registros (cascade); uma vacina não pode ser excluída se houver registros (restrict).
+- **Banco InMemory:** roda sem dependências externas. A camada de repositórios/`IUnitOfWork` permite trocar por um provedor real alterando apenas a Infrastructure.
 
-**Criar pessoa** — `POST /api/people`
-```json
-{ "name": "João Souza", "identificationNumber": "98765432100" }
-```
-
-**Registrar vacinação** — `POST /api/people/{personId}/vaccination-records`
-```json
-{
-  "vaccineId": "d3f1f7a0-0000-0000-0000-000000000000",
-  "dose": "First",
-  "applicationDate": "2024-03-10T00:00:00Z"
-}
-```
+**Frontend**
+- **Camada de serviços tipada (`api/services.ts`):** centraliza as chamadas e usa as interfaces de `types.ts`, derivadas dos contratos da API.
+- **Axios com interceptors:** injeta o token automaticamente e, em `401`, limpa a sessão e redireciona para o login.
+- **AuthContext + rota protegida:** estado de autenticação simples (token/usuário no `localStorage`), com `ProtectedRoute` guardando as rotas privadas.
+- **React Hook Form:** formulários de login, pessoa, vacina e registro de vacinação com validação no cliente; erros do servidor exibidos via parser de ProblemDetails.
+- **Tailwind CSS:** UI responsiva no estilo dashboard administrativo.
 
 ---
 
-## 6. Testes de validação (casos de erro)
+## 7. Próximos passos
 
-A API responde com **ProblemDetails** (RFC 7807) e o status HTTP apropriado.
-
-| Cenário | Status esperado |
-|---------|-----------------|
-| Chamar qualquer endpoint sem token | `401 Unauthorized` |
-| Login com credenciais erradas | `401 Unauthorized` |
-| Dose inválida (ex.: `"Quinta"`) | `400 Bad Request` |
-| Data de aplicação no futuro | `400 Bad Request` |
-| Nome obrigatório vazio | `400 Bad Request` |
-| Número de identificação duplicado | `409 Conflict` |
-| Vacina inexistente no registro | `404 Not Found` |
-| Cartão de pessoa inexistente | `404 Not Found` |
-| Excluir registro inexistente | `404 Not Found` |
-
-### Exemplos
-
-**Dose inválida** → `400`
-```bash
-curl http://localhost:5087/api/people/<personId>/vaccination-records \
-  -X POST -H "Authorization: Bearer <TOKEN>" -H "Content-Type: application/json" \
-  -d '{"vaccineId":"<vaccineId>","dose":"Quinta","applicationDate":"2024-01-01T00:00:00Z"}'
-```
-```json
-{
-  "title": "Um ou mais erros de validação ocorreram.",
-  "status": 400,
-  "errors": {
-    "Dose": ["Dose inválida. Os valores aceitos são: Single, First, Second, Third, Booster."]
-  }
-}
-```
-
-**Data futura** → `400`
-```json
-{ "status": 400, "errors": { "ApplicationDate": ["A data de aplicação não pode ser uma data futura."] } }
-```
-
-**Identificação duplicada** → `409`
-```json
-{ "status": 409, "title": "Conflito.", "detail": "Já existe uma pessoa com o número de identificação '12345678900'." }
-```
-
-**Vacina inexistente** → `404`
-```json
-{ "status": 404, "title": "Recurso não encontrado.", "detail": "\"Vaccine\" com identificador '...' não foi encontrado(a)." }
-```
-
----
-
-## 7. Decisões arquiteturais
-
-- **Clean Architecture + CQRS:** separa regras de negócio (Application/Domain) da infraestrutura e da API, facilitando testes e manutenção. Cada caso de uso é um Command/Query com seu Handler.
-- **Contratos da API separados dos Commands:** os `Request` records em `API/Contracts` isolam a interface HTTP da lógica interna, permitindo evoluí-las de forma independente.
-- **Validação via pipeline (ValidationBehavior):** todo Command passa pelos validadores do FluentValidation antes do Handler — centraliza a validação e mantém os handlers limpos.
-- **Tratamento global de exceções:** `GlobalExceptionHandler` traduz exceções de domínio (`NotFoundException`, `ConflictException`) e de validação para respostas HTTP padronizadas (ProblemDetails).
-- **`Id` (GUID) separado do número de identificação:** o número de identificação tem significado de negócio e é único, mas a chave primária é um GUID técnico — boa prática para não acoplar a PK a um dado de domínio.
-- **Cascata vs. restrição:** excluir uma pessoa apaga seus registros de vacinação (cascade); uma vacina não pode ser excluída se houver registros associados (restrict).
-- **Banco InMemory:** escolhido para o desafio rodar sem dependências externas. A camada de repositórios/`IUnitOfWork` permite trocar por um provedor real (SQL Server, PostgreSQL) alterando apenas a Infrastructure.
-
----
-
-## 8. Próximos passos sugeridos
-
-- Projeto de **testes unitários** (xUnit) para os Handlers e validadores.
-- Endpoints de listagem de vacinas e pessoas (`GET`).
+- Projeto de **testes unitários** (xUnit) para Handlers e validadores; testes de componente no frontend.
 - Persistência real (SQL Server/PostgreSQL) via EF Core + migrations.
 - Gestão de usuários real para a autenticação (hoje é um login fixo de demonstração).
+- Paginação/busca nas listagens de pessoas e vacinas.

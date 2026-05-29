@@ -40,6 +40,16 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// CORS para o frontend (Vite dev server e preview).
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCorsPolicy, policy =>
+        policy.WithOrigins("http://localhost:5173", "http://localhost:4173")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -83,6 +93,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
