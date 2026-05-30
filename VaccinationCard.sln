@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.Domain", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.Infrastructure", "src\VaccinationCard.Infrastructure\VaccinationCard.Infrastructure.csproj", "{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VaccinationCard.Tests", "src\VaccinationCard.Tests\VaccinationCard.Tests.csproj", "{98A1A757-31E9-4CD9-ABA8-7CAECA915C41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,11 +40,16 @@ Global
 		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98A1A757-31E9-4CD9-ABA8-7CAECA915C41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98A1A757-31E9-4CD9-ABA8-7CAECA915C41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98A1A757-31E9-4CD9-ABA8-7CAECA915C41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98A1A757-31E9-4CD9-ABA8-7CAECA915C41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9D87CE7D-1929-47E6-AE8B-9BBDBCAB115C} = {08779370-671F-4221-AAC0-55BA0DC413E9}
 		{FD4683E6-1795-426B-99FE-8703873DC5AC} = {08779370-671F-4221-AAC0-55BA0DC413E9}
 		{5FA176A5-BF45-4D27-B0E7-32377DA55080} = {08779370-671F-4221-AAC0-55BA0DC413E9}
 		{CF9BFEAD-79F8-47BB-AF83-3612F72A806A} = {08779370-671F-4221-AAC0-55BA0DC413E9}
+		{98A1A757-31E9-4CD9-ABA8-7CAECA915C41} = {08779370-671F-4221-AAC0-55BA0DC413E9}
 	EndGlobalSection
 EndGlobal
