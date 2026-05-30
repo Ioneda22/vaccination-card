@@ -59,4 +59,51 @@ public class CreateVaccinationRecordCommandHandlerTests
         await Assert.ThrowsAsync<NotFoundException>(
             () => BuildHandler(context).Handle(command, CancellationToken.None));
     }
+
+    // Verifica se não é permitido registrar a mesma dose da mesma vacina duas vezes.
+    [Fact]
+    public async Task Handle_DuplicateDose_ThrowsConflictException()
+    {
+        using ApplicationDbContext context = TestDbContextFactory.Create();
+
+        var person = new Person { Id = Guid.NewGuid(), Name = "Maria", IdentificationNumber = "111" };
+        var vaccine = new Vaccine { Id = Guid.NewGuid(), Name = "COVID-19" };
+        context.People.Add(person);
+        context.Vaccines.Add(vaccine);
+        context.VaccinationRecords.Add(new VaccinationRecord
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            VaccineId = vaccine.Id,
+            Dose = VaccineDoses.First,
+            ApplicationDate = new DateTime(2024, 1, 10)
+        });
+        await context.SaveChangesAsync();
+
+        // Tenta registrar a 1ª dose novamente
+        var command = new CreateVaccinationRecordCommand(
+            person.Id, vaccine.Id, VaccineDoses.First, new DateTime(2024, 3, 10));
+
+        await Assert.ThrowsAsync<ConflictException>(
+            () => BuildHandler(context).Handle(command, CancellationToken.None));
+    }
+
+    // Verifica se não é permitido registrar a 2ª dose sem ter a 1ª dose registrada.
+    [Fact]
+    public async Task Handle_SecondDoseWithoutFirst_ThrowsConflictException()
+    {
+        using ApplicationDbContext context = TestDbContextFactory.Create();
+
+        var person = new Person { Id = Guid.NewGuid(), Name = "Maria", IdentificationNumber = "111" };
+        var vaccine = new Vaccine { Id = Guid.NewGuid(), Name = "COVID-19" };
+        context.People.Add(person);
+        context.Vaccines.Add(vaccine);
+        await context.SaveChangesAsync();
+
+        var command = new CreateVaccinationRecordCommand(
+            person.Id, vaccine.Id, VaccineDoses.Second, new DateTime(2024, 3, 10));
+
+        await Assert.ThrowsAsync<ConflictException>(
+            () => BuildHandler(context).Handle(command, CancellationToken.None));
+    }
 }
