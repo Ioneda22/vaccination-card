@@ -1,0 +1,33 @@
+# Sobe a aplicação completa (API + frontend) com um único comando:
+#
+#   docker compose up --build
+#
+# Depois, acesse:
+#   - Frontend: http://localhost:5173   (login: admin / admin)
+#   - Swagger:  http://localhost:5087/swagger
+#
+# O frontend (nginx) faz proxy de /api para o container da API, então o
+# navegador conversa com tudo pela mesma origem (http://localhost:5173).
+
+services:
+  api:
+    build:
+      context: ./src
+      dockerfile: VaccinationCard.API/Dockerfile
+    container_name: vaccinationcard-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      # Exposto também no host para acessar o Swagger diretamente.
+      - "5087:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vaccinationcard-frontend
+    depends_on:
+      - api
+    ports:
+      - "5173:80"

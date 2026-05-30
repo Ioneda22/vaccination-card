@@ -34,9 +34,31 @@ Segue a descrição do projeto [aqui](https://gist.github.com/DouglasLutz/aa2572
 
 ## Como rodar
 
+Há duas formas: com **Docker** (um único comando) ou **manualmente** (dois terminais).
+
+### Opção A — Docker (recomendado para avaliar rápido)
+
+Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (no Windows, com o backend WSL2).
+
+```bash
+# Na raiz do projeto
+docker compose up --build
+```
+
+- App: **http://localhost:5173** (login `admin` / `admin`)
+- Swagger: **http://localhost:5087/swagger**
+
+O frontend (nginx) faz proxy de `/api` para o container da API, então tudo
+trafega pela mesma origem — não é preciso configurar `.env` nem CORS. Para
+parar: `Ctrl+C` e, opcionalmente, `docker compose down`.
+
+> Não é preciso ter .NET ou Node instalados nesta opção — apenas o Docker.
+
+### Opção B — Manual
+
 A aplicação tem duas partes. Use **dois terminais** (um para a API, outro para o frontend).
 
-### 1. Backend (API)
+#### 1. Backend (API)
 
 ```bash
 # Na raiz do projeto
@@ -48,7 +70,7 @@ dotnet run --project src/VaccinationCard.API --launch-profile http
 
 > O banco é **InMemory**: os dados são reiniciados a cada execução.
 
-### 2. Frontend
+#### 2. Frontend
 
 ```bash
 cd frontend
@@ -59,7 +81,7 @@ npm run dev
 - App: **http://localhost:5173**
 - A URL da API é configurável em `frontend/.env` (`VITE_API_BASE_URL`).
 
-### 3. Acessar
+#### 3. Acessar
 
 Abra **http://localhost:5173** e faça login com as credenciais de demonstração:
 
