@@ -1,12 +1,28 @@
 # Cartão de Vacinação
 
-Segue a descrição do projeto [aqui](https://gist.github.com/DouglasLutz/aa25728e3a438dc966490870f03cc770/).
+> Segue a descrição do projeto [aqui](https://gist.github.com/DouglasLutz/aa25728e3a438dc966490870f03cc770/).
+
+---
+
+## Sumário
+
+- [Tecnologias](#tecnologias)
+- [Pré-requisitos](#pré-requisitos)
+- [Como rodar](#como-rodar)
+  - [Opção A — Docker](#opção-a--docker)
+  - [Opção B — Manual](#opção-b--manual)
+- [Como rodar os testes](#como-rodar-os-testes)
+- [Endpoints da API](#endpoints-da-api)
+- [Arquitetura](#arquitetura)
+- [Regras de negócio (registro de vacinação)](#regras-de-negócio-registro-de-vacinação)
+- [Decisões de projeto](#decisões-de-projeto)
+- [Considerações finais](#considerações-finais)
 
 ---
 
 ## Tecnologias
 
-**Backend**
+### Backend
 
 - .NET 9 / ASP.NET Core Web API
 - Clean Architecture + CQRS (MediatR)
@@ -16,7 +32,7 @@ Segue a descrição do projeto [aqui](https://gist.github.com/DouglasLutz/aa2572
 - Swagger / OpenAPI
 - xUnit (testes)
 
-**Frontend**
+### Frontend
 
 - React 18 + TypeScript
 - Vite
@@ -34,23 +50,25 @@ Segue a descrição do projeto [aqui](https://gist.github.com/DouglasLutz/aa2572
 
 ## Como rodar
 
-Há duas formas: com **Docker** ou **manualmente**
+Há duas formas: com **Docker** ou **manualmente**.
 
-### Opção A — Docker 
+### Opção A — Docker
 
-Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) ou [Rancher Desktop](https://rancherdesktop.io/)
+> **Pré-requisito:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) ou [Rancher Desktop](https://rancherdesktop.io/)
 
 ```bash
 # Na raiz do projeto
 docker compose up --build
 ```
 
-- App: **http://localhost:5173** (login `admin` / `admin`)
-- Swagger: **http://localhost:5087/swagger**
+| Serviço | URL                              | Acesso            |
+| ------- | -------------------------------- | ----------------- |
+| App     | http://localhost:5173            | `admin` / `admin` |
+| Swagger | http://localhost:5087/swagger    | —                 |
 
-O frontend (nginx) faz proxy de `/api` para o container da API, então tudo
-trafega pela mesma origem — não é preciso configurar `.env` nem CORS. Para
-parar: `Ctrl+C` e, opcionalmente, `docker compose down`.
+O frontend (nginx) faz proxy de `/api` para o container da API, então tudo trafega pela mesma origem — não é preciso configurar `.env` nem CORS.
+
+Para parar: `Ctrl+C` e, opcionalmente, `docker compose down`.
 
 > Não é preciso ter .NET ou Node instalados nesta opção — apenas o Docker.
 
@@ -65,12 +83,12 @@ A aplicação tem duas partes. Use **dois terminais** (um para a API, outro para
 dotnet run --project src/VaccinationCard.API --launch-profile http
 ```
 
-- API: **http://localhost:5087**
-- Swagger: **http://localhost:5087/swagger**
+| Serviço | URL                           |
+| ------- | ----------------------------- |
+| API     | http://localhost:5087         |
+| Swagger | http://localhost:5087/swagger |
 
-> O banco é **InMemory**: os dados são reiniciados a cada execução. No startup,
-> ele é populado automaticamente com dados de demonstração (ver
-> [Dados de demonstração](#dados-de-demonstração)).
+> O banco é **InMemory**: os dados são reiniciados a cada execução. No startup, ele é populado automaticamente com dados de demonstração.
 
 #### 2. Frontend
 
@@ -171,4 +189,4 @@ Violações retornam **409 Conflict**; dados inválidos retornam **400**; recurs
 
 - O projeto contou com o uso de IA, mais especificamente o [Claude](https://claude.ai).
 - A ferramenta foi utilizada para o desenvolvimento e documentação do projeto.
-- Commits com o sufixo ' - CLAUDE' foram gerados a partir da modelo.
+- Commits com o sufixo ` - CLAUDE` foram gerados a partir do modelo.
