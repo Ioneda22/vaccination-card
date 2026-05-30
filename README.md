@@ -68,7 +68,9 @@ dotnet run --project src/VaccinationCard.API --launch-profile http
 - API: **http://localhost:5087**
 - Swagger: **http://localhost:5087/swagger**
 
-> O banco é **InMemory**: os dados são reiniciados a cada execução.
+> O banco é **InMemory**: os dados são reiniciados a cada execução. No startup,
+> ele é populado automaticamente com dados de demonstração (ver
+> [Dados de demonstração](#dados-de-demonstração)).
 
 #### 2. Frontend
 

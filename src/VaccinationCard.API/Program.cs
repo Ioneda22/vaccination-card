@@ -6,6 +6,7 @@ using VaccinationCard.API.Middleware;
 using VaccinationCard.Application;
 using VaccinationCard.Infrastructure;
 using VaccinationCard.Infrastructure.Identity;
+using VaccinationCard.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,6 +84,13 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+// Popula o banco InMemory com dados de demonstração (reiniciado a cada execução).
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await ApplicationDbContextSeeder.SeedAsync(dbContext);
+}
 
 app.UseExceptionHandler();
 
