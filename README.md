@@ -170,5 +170,5 @@ Violações retornam **409 Conflict**; dados inválidos retornam **400**; recurs
 ## Considerações finais
 
 - O projeto contou com o uso de IA, mais especificamente o [Claude](https://claude.ai).
-- A ferramenta foi utilizada para 0 desenvolvimento e documentação do projeto.
+- A ferramenta foi utilizada para o desenvolvimento e documentação do projeto.
 - Commits com o sufixo ' - CLAUDE' foram gerados a partir da modelo.
