@@ -34,11 +34,11 @@ Segue a descrição do projeto [aqui](https://gist.github.com/DouglasLutz/aa2572
 
 ## Como rodar
 
-Há duas formas: com **Docker** (um único comando) ou **manualmente** (dois terminais).
+Há duas formas: com **Docker** ou **manualmente**
 
-### Opção A — Docker (recomendado para avaliar rápido)
+### Opção A — Docker 
 
-Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (no Windows, com o backend WSL2).
+Pré-requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) ou [Rancher Desktop](https://rancherdesktop.io/)
 
 ```bash
 # Na raiz do projeto
@@ -164,3 +164,11 @@ Violações retornam **409 Conflict**; dados inválidos retornam **400**; recurs
 - **Contratos da API separados dos Commands.** Os `Request` da camada API isolam o contrato HTTP da lógica interna, permitindo evoluí-los de forma independente.
 - **Banco InMemory.** Mantém o desafio executável sem dependências externas. A camada de repositórios/`IUnitOfWork` permite trocar por um provedor real (SQL Server/PostgreSQL) alterando apenas a Infrastructure.
 - **Autenticação de demonstração.** O login (`admin`/`admin`) gera um JWT válido para exercitar a proteção das rotas; não há gestão de usuários real.
+
+---
+
+## Considerações finais
+
+- O projeto contou com o uso de IA, mais especificamente o [Claude](https://claude.ai).
+- A ferramenta foi utilizada para 0 desenvolvimento e documentação do projeto.
+- Commits com o sufixo ' - CLAUDE' foram gerados a partir da modelo.
