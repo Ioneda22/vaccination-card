@@ -106,4 +106,63 @@ public class CreateVaccinationRecordCommandHandlerTests
         await Assert.ThrowsAsync<ConflictException>(
             () => BuildHandler(context).Handle(command, CancellationToken.None));
     }
+
+    // Verifica se a 2ª dose não pode ter data anterior à da 1ª dose.
+    [Fact]
+    public async Task Handle_SecondDoseBeforeFirstDate_ThrowsConflictException()
+    {
+        using ApplicationDbContext context = TestDbContextFactory.Create();
+
+        var person = new Person { Id = Guid.NewGuid(), Name = "Maria", IdentificationNumber = "111" };
+        var vaccine = new Vaccine { Id = Guid.NewGuid(), Name = "COVID-19" };
+        context.People.Add(person);
+        context.Vaccines.Add(vaccine);
+        context.VaccinationRecords.Add(new VaccinationRecord
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            VaccineId = vaccine.Id,
+            Dose = VaccineDoses.First,
+            ApplicationDate = new DateTime(2024, 3, 10)
+        });
+        await context.SaveChangesAsync();
+
+        // 2ª dose com data anterior à 1ª dose
+        var command = new CreateVaccinationRecordCommand(
+            person.Id, vaccine.Id, VaccineDoses.Second, new DateTime(2024, 1, 5));
+
+        await Assert.ThrowsAsync<ConflictException>(
+            () => BuildHandler(context).Handle(command, CancellationToken.None));
+    }
+
+    // Verifica se a 2ª dose é aceita quando a data é igual ou posterior à da 1ª dose.
+    [Fact]
+    public async Task Handle_SecondDoseOnOrAfterFirstDate_RegistersVaccination()
+    {
+        using ApplicationDbContext context = TestDbContextFactory.Create();
+
+        var person = new Person { Id = Guid.NewGuid(), Name = "Maria", IdentificationNumber = "111" };
+        var vaccine = new Vaccine { Id = Guid.NewGuid(), Name = "COVID-19" };
+        context.People.Add(person);
+        context.Vaccines.Add(vaccine);
+        context.VaccinationRecords.Add(new VaccinationRecord
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            VaccineId = vaccine.Id,
+            Dose = VaccineDoses.First,
+            ApplicationDate = new DateTime(2024, 3, 10)
+        });
+        await context.SaveChangesAsync();
+
+        var command = new CreateVaccinationRecordCommand(
+            person.Id, vaccine.Id, VaccineDoses.Second, new DateTime(2024, 4, 10));
+
+        Guid recordId = await BuildHandler(context).Handle(command, CancellationToken.None);
+
+        Assert.NotEqual(Guid.Empty, recordId);
+        var saved = await context.VaccinationRecords.FindAsync(recordId);
+        Assert.NotNull(saved);
+        Assert.Equal(VaccineDoses.Second, saved!.Dose);
+    }
 }

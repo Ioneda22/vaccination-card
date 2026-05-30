@@ -33,13 +33,11 @@ public class CreateVaccinationRecordCommandHandler(
             throw new NotFoundException(nameof(Vaccine), request.VaccineId);
         }
 
-        // Doses que a pessoa já possui PARA ESTA vacina
         var existingDoses = person.VaccinationRecords
             .Where(record => record.VaccineId == request.VaccineId)
-            .Select(record => record.Dose)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(record => record.Dose, record => record.ApplicationDate, StringComparer.OrdinalIgnoreCase);
 
-        ValidateBusinessRules(request.Dose, existingDoses);
+        ValidateBusinessRules(request.Dose, request.ApplicationDate, existingDoses);
 
         var vaccinationRecord = new VaccinationRecord
         {
@@ -57,38 +55,76 @@ public class CreateVaccinationRecordCommandHandler(
     }
 
     // Valida as regras de negócio do histórico de doses (por vacina) antes de registrar uma nova dose.
-    private static void ValidateBusinessRules(string requestedDose, IReadOnlySet<string> existingDoses)
+    // Cada dose subsequente exige a dose anterior registrada E uma data de aplicação não anterior a ela.
+    private static void ValidateBusinessRules(
+        string requestedDose,
+        DateTime requestedDate,
+        IReadOnlyDictionary<string, DateTime> existingDoses)
     {
         // não permitir a mesma dose da mesma vacina mais de uma vez.
-        if (existingDoses.Contains(requestedDose))
+        if (existingDoses.ContainsKey(requestedDose))
         {
             throw new ConflictException(
-                $"Esta pessoa já tomou essa dose para esta vacina.");
+                "Esta pessoa já tomou essa dose para esta vacina.");
         }
 
-        // cada dose exige a anterior, para a mesma vacina
-        if (Equals(requestedDose, VaccineDoses.Second) && !existingDoses.Contains(VaccineDoses.First))
+        // exige a 1ª e não pode ser anterior à data dela.
+        if (DoseEquals(requestedDose, VaccineDoses.Second))
         {
-            throw new ConflictException(
-                "Não é possível registrar a 2ª dose: a 1ª dose desta vacina ainda não foi registrada.");
+            if (!existingDoses.TryGetValue(VaccineDoses.First, out DateTime firstDate))
+            {
+                throw new ConflictException(
+                    "Não é possível registrar a 2ª dose: a 1ª dose desta vacina ainda não foi registrada.");
+            }
+
+            if (requestedDate < firstDate)
+            {
+                throw new ConflictException(
+                    "A data da 2ª dose não pode ser anterior à data da 1ª dose.");
+            }
         }
 
-        if (Equals(requestedDose, VaccineDoses.Third) && !existingDoses.Contains(VaccineDoses.Second))
+        // exige a 2ª e não pode ser anterior à data dela.
+        if (DoseEquals(requestedDose, VaccineDoses.Third))
         {
-            throw new ConflictException(
-                "Não é possível registrar a 3ª dose: a 2ª dose desta vacina ainda não foi registrada.");
+            if (!existingDoses.TryGetValue(VaccineDoses.Second, out DateTime secondDate))
+            {
+                throw new ConflictException(
+                    "Não é possível registrar a 3ª dose: a 2ª dose desta vacina ainda não foi registrada.");
+            }
+
+            if (requestedDate < secondDate)
+            {
+                throw new ConflictException(
+                    "A data da 3ª dose não pode ser anterior à data da 2ª dose.");
+            }
         }
 
-        // Reforço exige ao menos a dose única ou a 2ª dose previamente registrada.
-        if (Equals(requestedDose, VaccineDoses.Booster)
-            && !existingDoses.Contains(VaccineDoses.Single)
-            && !existingDoses.Contains(VaccineDoses.Second))
+        // exige a dose única OU a 2ª dose, e não pode ser anterior à data dessa dose anterior.
+        if (DoseEquals(requestedDose, VaccineDoses.Booster))
         {
-            throw new ConflictException(
-                "Não é possível registrar o reforço: é necessário ter a dose única ou a 2ª dose desta vacina registrada previamente.");
+            bool hasSingle = existingDoses.TryGetValue(VaccineDoses.Single, out DateTime singleDate);
+            bool hasSecond = existingDoses.TryGetValue(VaccineDoses.Second, out DateTime secondDate);
+
+            if (!hasSingle && !hasSecond)
+            {
+                throw new ConflictException(
+                    "Não é possível registrar o reforço: é necessário ter a dose única ou a 2ª dose desta vacina registrada previamente.");
+            }
+
+            // a dose anterior mais recente (única ou 2ª), caso ambas existam.
+            DateTime previousDate = hasSingle && hasSecond
+                ? (singleDate > secondDate ? singleDate : secondDate)
+                : (hasSingle ? singleDate : secondDate);
+
+            if (requestedDate < previousDate)
+            {
+                throw new ConflictException(
+                    "A data do reforço não pode ser anterior à data da dose anterior.");
+            }
         }
     }
 
-    private static bool Equals(string a, string b) =>
+    private static bool DoseEquals(string a, string b) =>
         string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 }
